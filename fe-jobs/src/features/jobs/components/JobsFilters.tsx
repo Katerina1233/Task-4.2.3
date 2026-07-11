@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { KeyboardEvent } from 'react';
 import {
   TextInput,
@@ -6,15 +6,52 @@ import {
   Group,
   Button,
   Stack,
-  TagsInput,
+  ScrollArea,
+  Pill,
+  PillsInput,
 } from '@mantine/core';
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { setSearch, setCity, addSkill, removeSkill, loadJobs } from '../jobsSlice';
+
+import { useSearchParams } from 'react-router-dom';
+
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
+import {
+  setSearch,
+  setCity,
+  addSkill,
+  removeSkill,
+  loadJobs,
+} from '../jobsSlice';
 
 export const JobsFilters = () => {
   const dispatch = useAppDispatch();
   const { search, city, skills } = useAppSelector((s) => s.jobs);
+
   const [skillInput, setSkillInput] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const searchParam = searchParams.get('search') || '';
+    const cityParam = searchParams.get('city') || 'Все';
+    const skillsParam = searchParams.get('skills')?.split(',') || [];
+
+    dispatch(setSearch(searchParam));
+    dispatch(setCity(cityParam));
+    skillsParam.forEach((s) => dispatch(addSkill(s)));
+  }, []);
+
+  const updateParams = useCallback(() => {
+    const params = new URLSearchParams();
+
+    if (search) params.set('search', search);
+    if (city && city !== 'Все') params.set('city', city);
+    if (skills.length) params.set('skills', skills.join(','));
+
+    setSearchParams(params);
+  }, [search, city, skills, setSearchParams]);
+
+  useEffect(() => {
+    updateParams();
+  }, [updateParams]);
 
   const handleSearchChange = (value: string) => {
     dispatch(setSearch(value));
@@ -46,7 +83,6 @@ export const JobsFilters = () => {
 
   return (
     <Stack gap="xl">
-
       <Group align="flex-end" grow>
         <TextInput
           label="Должность или название компании"
@@ -61,30 +97,38 @@ export const JobsFilters = () => {
       </Group>
 
       <Group align="flex-start" grow>
-        <Stack flex={1} gap="sm">
-          <TagsInput
-            label="Навыки"
-            placeholder="Добавить навык"
-            value={skills}
-            onChange={(newSkills) => {
-              const last = newSkills[newSkills.length - 1];
-              if (last && !skills.includes(last)) {
-                dispatch(addSkill(last));
-              }
-            }}
-            onKeyDown={onSkillKeyDown}
-          />
+        <Stack flex={1}>
+          <PillsInput>
+            <PillsInput.Field
+              value={skillInput}
+              onChange={(e) => setSkillInput(e.currentTarget.value)}
+              onKeyDown={onSkillKeyDown}
+              placeholder="Добавить навык"
+            />
 
-          <TagsInput
-            value={skills}
-            onChange={(newSkills) => {
-              skills.forEach((s) => {
-                if (!newSkills.includes(s)) {
-                  dispatch(removeSkill(s));
-                }
-              });
-            }}
-          />
+            <Button
+              onClick={commitSkill}
+              variant="light"
+              color="primary"
+              ml="sm"
+            >
+              +
+            </Button>
+          </PillsInput>
+
+          <ScrollArea h={80}>
+            <Group gap="xs" wrap="wrap">
+              {skills.map((skill) => (
+                <Pill
+                  key={skill}
+                  withRemoveButton
+                  onRemove={() => dispatch(removeSkill(skill))}
+                >
+                  {skill}
+                </Pill>
+              ))}
+            </Group>
+          </ScrollArea>
         </Stack>
 
         <Select

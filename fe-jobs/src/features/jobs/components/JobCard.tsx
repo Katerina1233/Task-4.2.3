@@ -1,4 +1,5 @@
 import { Card, Group, Text, Badge, Button, Stack } from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
 import type { Job } from '../jobsApi';
 
 interface Props {
@@ -13,6 +14,12 @@ const getModeBadge = (job: Job) => {
 };
 
 export const JobCard = ({ job }: Props) => {
+  const navigate = useNavigate();
+
+  const openVacancy = () => {
+    navigate(`/vacancies/${job.id}`);
+  };
+
   return (
     <Card
       withBorder
@@ -47,9 +54,8 @@ export const JobCard = ({ job }: Props) => {
           color="dark"
           radius="md"
           size="md"
-          style={{
-            fontWeight: 500,
-          }}
+          style={{ fontWeight: 500 }}
+          onClick={openVacancy}
         >
           Смотреть вакансию
         </Button>

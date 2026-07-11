@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
 import { Stack, Pagination, Loader, Center, Text } from '@mantine/core';
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { useAppDispatch, useAppSelector } from '../../../app/hooks';
 import { loadJobs, setPage } from '../jobsSlice';
 import { JobCard } from './JobCard';
 
 export const JobsList = () => {
   const dispatch = useAppDispatch();
-  const { items, total, page, limit, loading, error } = useAppSelector((s) => s.jobs);
+  const { items, total, page, limit, loading, error } = useAppSelector(
+    (s) => s.jobs
+  );
 
   useEffect(() => {
     dispatch(loadJobs());
@@ -16,7 +18,7 @@ export const JobsList = () => {
 
   if (loading) {
     return (
-      <Center mt="xl">
+      <Center mt="lg">
         <Loader size="lg" />
       </Center>
     );
@@ -24,31 +26,23 @@ export const JobsList = () => {
 
   if (error) {
     return (
-      <Center mt="xl">
-        <Text c="red" size="lg">{error}</Text>
+      <Center mt="lg">
+        <Text c="red">{error}</Text>
       </Center>
     );
   }
 
   return (
-    <Stack
-      gap="xl"
-      w="100%"
-      maw={900}
-      mx="auto"
-      style={{ paddingBottom: '2rem' }}
-    >
+    <Stack gap="lg" w="100%" maw={900} mx="auto">
       {items.map((job) => (
         <JobCard key={job.id} job={job} />
       ))}
 
-      <Center mt="lg">
+      <Center mt="xl">
         <Pagination
           value={page}
           onChange={(p) => dispatch(setPage(p))}
           total={totalPages}
-          size="md"
-          radius="md"
         />
       </Center>
     </Stack>
