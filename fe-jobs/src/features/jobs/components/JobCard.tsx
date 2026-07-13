@@ -1,5 +1,4 @@
 import { Card, Group, Text, Badge, Button, Stack } from '@mantine/core';
-import { useNavigate } from 'react-router-dom';
 import type { Job } from '../jobsApi';
 
 interface Props {
@@ -14,12 +13,6 @@ const getModeBadge = (job: Job) => {
 };
 
 export const JobCard = ({ job }: Props) => {
-  const navigate = useNavigate();
-
-  const openVacancy = () => {
-    navigate(`/vacancies/${job.id}`);
-  };
-
   return (
     <Card
       withBorder
@@ -29,33 +22,38 @@ export const JobCard = ({ job }: Props) => {
       style={{
         backgroundColor: '#fff',
         borderColor: '#e9ecef',
+        transition: 'box-shadow 0.2s ease',
       }}
     >
       <Stack gap="md">
         <Group justify="space-between" align="flex-start">
-          <Text fw={700} size="lg">
+          <Text fw={700} size="lg" c="blue">
             {job.title}
           </Text>
           {getModeBadge(job)}
         </Group>
 
         <Group gap="xl">
-          <Text fw={600} size="md">{job.salary}</Text>
+          <Text fw={600} size="md">
+            {job.salary ? `${job.salary} ₽` : 'Зарплата не указана'}
+          </Text>
           <Text c="dimmed">{job.experience}</Text>
         </Group>
 
-        <Group gap="xl">
-          <Text fw={500}>{job.company}</Text>
-          <Text c="dimmed">{job.city}</Text>
-        </Group>
+        <Stack gap={2}>
+          <Text c="dimmed">{job.company}</Text>
+          <Text>{job.city}</Text>
+        </Stack>
 
         <Button
-          variant="light"
+          variant="filled"
           color="dark"
           radius="md"
           size="md"
-          style={{ fontWeight: 500 }}
-          onClick={openVacancy}
+          style={{
+            fontWeight: 50,
+            width: 'fit-content',
+          }}
         >
           Смотреть вакансию
         </Button>

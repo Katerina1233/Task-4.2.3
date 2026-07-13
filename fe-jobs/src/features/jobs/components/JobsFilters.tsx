@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { KeyboardEvent } from 'react';
 import {
-  TextInput,
   Select,
   Group,
   Button,
@@ -9,32 +8,25 @@ import {
   ScrollArea,
   Pill,
   PillsInput,
+  Card,
+  Title,
 } from '@mantine/core';
 
 import { useSearchParams } from 'react-router-dom';
-
 import { useAppDispatch, useAppSelector } from '../../../app/hooks';
-import {
-  setSearch,
-  setCity,
-  addSkill,
-  removeSkill,
-  loadJobs,
-} from '../jobsSlice';
+import { setCity, addSkill, removeSkill, loadJobs } from '../jobsSlice';
 
 export const JobsFilters = () => {
   const dispatch = useAppDispatch();
-  const { search, city, skills } = useAppSelector((s) => s.jobs);
+  const { city, skills } = useAppSelector((s) => s.jobs);
 
   const [skillInput, setSkillInput] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    const searchParam = searchParams.get('search') || '';
     const cityParam = searchParams.get('city') || 'Все';
     const skillsParam = searchParams.get('skills')?.split(',') || [];
 
-    dispatch(setSearch(searchParam));
     dispatch(setCity(cityParam));
     skillsParam.forEach((s) => dispatch(addSkill(s)));
   }, []);
@@ -42,20 +34,15 @@ export const JobsFilters = () => {
   const updateParams = useCallback(() => {
     const params = new URLSearchParams();
 
-    if (search) params.set('search', search);
     if (city && city !== 'Все') params.set('city', city);
     if (skills.length) params.set('skills', skills.join(','));
 
     setSearchParams(params);
-  }, [search, city, skills, setSearchParams]);
+  }, [city, skills, setSearchParams]);
 
   useEffect(() => {
     updateParams();
   }, [updateParams]);
-
-  const handleSearchChange = (value: string) => {
-    dispatch(setSearch(value));
-  };
 
   const handleCityChange = (value: string | null) => {
     if (!value) return;
@@ -82,62 +69,73 @@ export const JobsFilters = () => {
   };
 
   return (
-    <Stack gap="xl">
-      <Group align="flex-end" grow>
-        <TextInput
-          label="Должность или название компании"
-          placeholder="Например: React"
-          value={search}
-          onChange={(e) => handleSearchChange(e.currentTarget.value)}
-        />
+    <Card
+      withBorder
+      radius="md"
+      p="lg"
+      style={{
+        backgroundColor: '#FFFFFF',
+        borderColor: '#e9ecef',
+      }}
+    >
+      <Stack gap="lg">
+        <Title order={5} fw={600}>
+          Ключевые навыки
+        </Title>
 
-        <Button size="md" radius="md" onClick={onApplyFilters}>
-          Найти
-        </Button>
-      </Group>
-
-      <Group align="flex-start" grow>
-        <Stack flex={1}>
-          <PillsInput>
+        <Group align="center">
+          <PillsInput flex={1}>
             <PillsInput.Field
               value={skillInput}
               onChange={(e) => setSkillInput(e.currentTarget.value)}
               onKeyDown={onSkillKeyDown}
               placeholder="Добавить навык"
             />
-
-            <Button
-              onClick={commitSkill}
-              variant="light"
-              color="primary"
-              ml="sm"
-            >
-              +
-            </Button>
           </PillsInput>
 
-          <ScrollArea h={80}>
-            <Group gap="xs" wrap="wrap">
-              {skills.map((skill) => (
-                <Pill
-                  key={skill}
-                  withRemoveButton
-                  onRemove={() => dispatch(removeSkill(skill))}
-                >
-                  {skill}
-                </Pill>
-              ))}
-            </Group>
-          </ScrollArea>
-        </Stack>
+          <Button
+						onClick={commitSkill}
+						radius="md"
+						style={{
+							backgroundColor: '#228BE6',
+							color: '#FFFFFF',
+							fontSize: 28,
+							fontWeight: 600,
+							padding: '0 8px',
+							lineHeight: 1,
+						}}
+					>
+						+
+					</Button>
+
+        </Group>
+
+        <ScrollArea h={80}>
+          <Group gap="xs" wrap="wrap">
+            {skills.map((skill) => (
+              <Pill
+                key={skill}
+                withRemoveButton
+                onRemove={() => dispatch(removeSkill(skill))}
+              >
+                {skill}
+              </Pill>
+            ))}
+          </Group>
+        </ScrollArea>
 
         <Select
-          label="Город"
+					label="Город"
           value={city}
           onChange={handleCityChange}
-          data={['Все', 'Москва', 'Санкт-Петербург']}
+          data={['Все', 'Москва', 'Санкт-Петербург', 'Уфа', 'Набережные Челны']}
+          radius="md"
         />
-      </Group>
-    </Stack>
+
+        <Button size="md" radius="md" onClick={onApplyFilters}>
+          Применить фильтры
+        </Button>
+      </Stack>
+    </Card>
   );
 };

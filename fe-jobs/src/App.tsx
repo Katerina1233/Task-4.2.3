@@ -34,8 +34,9 @@ const App = () => {
 
         <AppShell.Main>
           <Routes>
-            <Route path="/vacancies" element={<JobsPage />} />
-            <Route path="/vacancies/:id" element={<VacancyPage />} />
+            <Route path="/" element={<JobsPage />} />
+						<Route path="/vacancies" element={<JobsPage />} />
+						<Route path="/vacancies/:id" element={<VacancyPage />} />
           </Routes>
         </AppShell.Main>
       </AppShell>
